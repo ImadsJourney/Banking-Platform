@@ -1,6 +1,13 @@
 package com.banking.banking_platform.auth;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.boot.actuate.web.exchanges.HttpExchange.Principal;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -8,24 +15,50 @@ import org.springframework.web.bind.annotation.RestController;
 import com.banking.banking_platform.auth.dto.AuthResponse;
 import com.banking.banking_platform.auth.dto.LoginRequest;
 import com.banking.banking_platform.auth.dto.RegisterRequest;
+import com.banking.banking_platform.auth.dto.UserResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
   private final UserService userService;
 
   @PostMapping("/login")
-  AuthResponse login(@Valid @RequestBody LoginRequest request) {
+  public AuthResponse login(@Valid @RequestBody LoginRequest request) {
     return userService.login(request);
   }
 
   @PostMapping("/register")
-  AuthResponse register(@Valid @RequestBody RegisterRequest request) {
+  public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
     return userService.register(request);
+  }
+
+  @GetMapping
+  public List<UserResponse> getAllUserResponses() {
+    return userService.getAllUsers();
+  }
+
+  @GetMapping("/me")
+  public UserResponse getCurrentUser(Principal principal) {
+    return userService.getCurrentUser(principal.getName());
+  }
+
+  @GetMapping("/{id}")
+  public UserResponse getUserById(UUID id) {
+    return userService.getUserById(id);
+  }
+
+  @PutMapping("/{id}/deactivate")
+  public UserResponse deactivateUser(UUID id) {
+    return userService.deactivateUserById(id);
+  }
+
+  @PutMapping("/{id}/activate")
+  public UserResponse activateUser(UUID id) {
+    return userService.activateUserById(id);
   }
 }
